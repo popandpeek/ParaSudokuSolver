@@ -42,7 +42,7 @@ public:
 	}
 
 	// sets a cell as 
-	__global__ void set_cell(int _row, int _col, int _val) {
+	__device__ void set_cell(int _row, int _col, int _val) {
 		int board_cell = _row + _col * SUB_BOARD_SIZE;
 		*board[board_cell][0] = true;
 		for (int i = 1; i < SUB_BOARD_SIZE + 1; i++) {
@@ -53,7 +53,7 @@ public:
 	}
 
 	// method for finding potential values for empty cells
-	__global__ void annotate_potential_entries(int row, int col) {
+	__device__ void annotate_potential_entries(int row, int col) {
 		// scan row for values and store in temp set
 		std::set<int> row_vals;
 		std::set<int> col_vals;
