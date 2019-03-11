@@ -23,12 +23,25 @@ public:
 	// 0 item in each array signifies filled or empty, 1-9 signifies filled value or potential value
 	bool **board = (bool **)malloc(BOARD_SIZE * sizeof(bool *));
 	int empty_cells = 0;
-
+	
+	// Used in the print function
+	char* border;
+	
 	Board() {
 		for (int i = 0; i < BOARD_SIZE; i++) {
 			board[i] = (bool*)malloc((SUB_BOARD_SIZE + 1) * sizeof(bool));
 		}
-	};
+	}
+	
+	// Destructor to free memory allocations
+	~Board() {
+		for (int i = 0; i < BOARD_SIZE; i++) {
+			free(board[i]);
+		}
+
+		free(board);
+		delete(border);
+	}
 
 	// Method to set the board according to passed integer array
 	// assumes the filled integer array is of size BOARD_SIZE contains only values between 1 and 9
