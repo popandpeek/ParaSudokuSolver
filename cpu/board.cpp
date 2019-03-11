@@ -22,6 +22,8 @@ public:
 	// Array of bool pointers to hold cells for board
 	// 0 item in each array signifies filled or empty, 1-9 signifies filled value or potential value
 	bool **board = (bool **)malloc(BOARD_SIZE * sizeof(bool *));
+	int empty_cells = 0;
+
 	Board() {
 		for (int i = 0; i < BOARD_SIZE; i++) {
 			board[i] = (bool*)malloc((SUB_BOARD_SIZE + 1) * sizeof(bool));
@@ -35,6 +37,9 @@ public:
 			if (filled[i] != 0) {
 				board[i][0] = true;
 				board[i][filled[i]] = true;
+			}
+			else {
+				++empty_cells;
 			}
 		}
 	}
@@ -51,7 +56,7 @@ public:
 	}
 
 	// method for finding potential values for empty cells
-	void annotate_potential_entries(bool **_board) {	
+	void annotate_potential_entries() {	
 
 		for (int row = 0; row < SUB_BOARD_SIZE; row++) {
 			// find non-filled values in the row and add to set
@@ -61,9 +66,9 @@ public:
 			}
 			// remove values from set that correspond to filled cells in the row
 			for (int i = row * SUB_BOARD_SIZE; i < (row * SUB_BOARD_SIZE) + SUB_BOARD_SIZE; i++) {
-				if (_board[i][0]) {
+				if (board[i][0]) {
 					for (int j = 1; j < SUB_BOARD_SIZE; j++) {
-						if (_board[i][j]) {
+						if (board[i][j]) {
 							row_vals.erase(j);
 						}
 					}
@@ -73,20 +78,21 @@ public:
 			// Fill potential entries in rows
 			if (!row_vals.empty()) {
 				for (int i = row * SUB_BOARD_SIZE; i < (row * SUB_BOARD_SIZE) + SUB_BOARD_SIZE; i++) {
-					if (!_board[i][0]) {
+					if (!board[i][0]) {
 						for (auto it = row_vals.begin(); it != row_vals.end(); ++it) {
-							_board[i][*it] = true;
+							board[i][*it] = true;
 						}
 
 						// check for single potential value and set if true
 						int count = 0;
 						for (int j = 1; j < SUB_BOARD_SIZE; j++) {
-							if (_board[i][j] == true) {
+							if (board[i][j] == true) {
 								++count;
 							}
 						}
 						if (count == 1) {
 							board[i][0] = true;
+							--empty_cells;
 						}
 					}
 				}
@@ -97,9 +103,9 @@ public:
 		for (int col = 0; col < SUB_BOARD_SIZE; col++) {
 			std::set<int> col_vals;
 			for (int i = col; i < col * SUB_BOARD_SIZE - col; i += SUB_BOARD_SIZE) {
-				if (_board[i][0]) {
+				if (board[i][0]) {
 					for (int j = 1; j < SUB_BOARD_SIZE; j++) {
-						if (_board[i][j]) {
+						if (board[i][j]) {
 							col_vals.insert(j);
 						}
 					}
@@ -109,22 +115,23 @@ public:
 			// Reduce potential entries for column intersections
 			if (!col_vals.empty()) {
 				for (int i = col; i < col * BOARD_SIZE - col; i += SUB_BOARD_SIZE) {
-					if (!_board[i][0]) {
+					if (!board[i][0]) {
 						for (auto it = col_vals.begin(); it != col_vals.end(); ++it) {
-							if (_board[i][*it] == true) {
-								_board[i][*it] = false;
+							if (board[i][*it] == true) {
+								board[i][*it] = false;
 							}
 						}
 
 						// check for single potential value and set if true
 						int count = 0;
 						for (int j = 1; j < SUB_BOARD_SIZE; j++) {
-							if (_board[i][j] == true) {
+							if (board[i][j] == true) {
 								++count;
 							}
 						}
 						if (count == 1) {
 							board[i][0] = true;
+							--empty_cells;
 						}
 					}
 				}
@@ -138,9 +145,9 @@ public:
 				for (int row = 0; row < SUB_BOARD_DIM; row++) {
 					for (int col = 0; col < SUB_BOARD_DIM; col++) {
 						int loc = (row_block + row) * (col_block + col);
-						if (_board[loc][0]) {
+						if (board[loc][0]) {
 							for (int j = 1; j < SUB_BOARD_SIZE; j++) {
-								if (_board[loc][j]) {
+								if (board[loc][j]) {
 									grid_vals.insert(j);
 								}
 							}
@@ -151,22 +158,23 @@ public:
 				for (int row = 0; row < SUB_BOARD_DIM; row++) {
 					for (int col = 0; col < SUB_BOARD_DIM; col++) {
 						int loc = (row_block + row) * (col_block + col);
-						if (!_board[loc][0]) {
+						if (!board[loc][0]) {
 							for (auto it = grid_vals.begin(); it != grid_vals.end(); ++it) {
-								if (_board[loc][*it] == true) {
-									_board[loc][*it] = false;
+								if (board[loc][*it] == true) {
+									board[loc][*it] = false;
 								}
 							}
 
 							// check for single potential value and set if true
 							int count = 0;
 							for (int i = 1; i < SUB_BOARD_SIZE; i++) {
-								if (_board[loc][i] == true) {
+								if (board[loc][i] == true) {
 									++count;
 								}
 							}
 							if (count == 1) {
 								board[loc][0] = true;
+								--empty_cells;
 							}
 						}
 					}
