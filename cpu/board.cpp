@@ -94,13 +94,45 @@ public:
 				}
 			}
 
-			// Fill potential entries in columns
+			// Reduce potential entries for column intersections
 			if (!col_vals.empty()) {
 				for (int i = col; i < col * BOARD_SIZE - col; i += SUB_BOARD_SIZE) {
 					if (!board[i][0]) {
 						for (auto it = col_vals.begin(); it != col_vals.end(); ++it) {
 							if (board[i][*it] == true) {
 								board[i][*it] = false;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Reduce potentials for sub grid intersections
+		for (int row_block = 0; row_block < SUB_BOARD_SIZE; row_block += SUB_BOARD_DIM) {
+			for (int col_block = 0; col_block < SUB_BOARD_SIZE; col_block += SUB_BOARD_DIM) {
+				std::set<int> grid_vals;
+				for (int row = 0; row < SUB_BOARD_DIM; row++) {
+					for (int col = 0; col < SUB_BOARD_DIM; col++) {
+						int loc = (row_block + row) * (col_block + col);
+						if (board[loc][0]) {
+							for (int j = 1; j < SUB_BOARD_SIZE; j++) {
+								if (board[loc][j]) {
+									grid_vals.insert(j);
+								}
+							}
+						}
+					}
+				}
+				
+				for (int row = 0; row < SUB_BOARD_DIM; row++) {
+					for (int col = 0; col < SUB_BOARD_DIM; col++) {
+						int loc = (row_block + row) * (col_block + col);
+						if (!board[loc][0]) {
+							for (auto it = grid_vals.begin(); it != grid_vals.end(); ++it) {
+								if (board[loc][*it] == true) {
+									board[loc][*it] = false;
+								}
 							}
 						}
 					}
