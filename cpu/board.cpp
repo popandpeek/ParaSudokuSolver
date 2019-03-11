@@ -13,6 +13,7 @@
 
 const int BOARD_SIZE = 81;
 const int SUB_BOARD_SIZE = 9;
+const int SUB_BOARD_DIM = 3;
 
 class Board {
 
@@ -38,7 +39,7 @@ public:
 		}
 	}
 
-	// sets a cell as 
+	// sets a cell
 	void set_cell(int _row, int _col, int _val) {
 		int board_cell = _row + _col * SUB_BOARD_SIZE;
 		board[board_cell][0] = true;
@@ -50,7 +51,7 @@ public:
 	}
 
 	// method for finding potential values for empty cells
-	void annotate_potential_entries() {	
+	void annotate_potential_entries(bool **_board) {	
 
 		for (int row = 0; row < SUB_BOARD_SIZE; row++) {
 			// find non-filled values in the row and add to set
@@ -60,9 +61,9 @@ public:
 			}
 			// remove values from set that correspond to filled cells in the row
 			for (int i = row * SUB_BOARD_SIZE; i < (row * SUB_BOARD_SIZE) + SUB_BOARD_SIZE; i++) {
-				if (board[i][0]) {
+				if (_board[i][0]) {
 					for (int j = 1; j < SUB_BOARD_SIZE; j++) {
-						if (board[i][j]) {
+						if (_board[i][j]) {
 							row_vals.erase(j);
 						}
 					}
@@ -72,22 +73,33 @@ public:
 			// Fill potential entries in rows
 			if (!row_vals.empty()) {
 				for (int i = row * SUB_BOARD_SIZE; i < (row * SUB_BOARD_SIZE) + SUB_BOARD_SIZE; i++) {
-					if (!board[i][0]) {
+					if (!_board[i][0]) {
 						for (auto it = row_vals.begin(); it != row_vals.end(); ++it) {
-							board[i][*it] = true;
+							_board[i][*it] = true;
+						}
+
+						// check for single potential value and set if true
+						int count = 0;
+						for (int j = 1; j < SUB_BOARD_SIZE; j++) {
+							if (_board[i][j] == true) {
+								++count;
+							}
+						}
+						if (count == 1) {
+							board[i][0] = true;
 						}
 					}
 				}
 			}
 		}
 
+		// scan col for filled in values and store in temp set
 		for (int col = 0; col < SUB_BOARD_SIZE; col++) {
-			// scan col for filled in values and store in temp set
 			std::set<int> col_vals;
 			for (int i = col; i < col * SUB_BOARD_SIZE - col; i += SUB_BOARD_SIZE) {
-				if (board[i][0]) {
+				if (_board[i][0]) {
 					for (int j = 1; j < SUB_BOARD_SIZE; j++) {
-						if (board[i][j]) {
+						if (_board[i][j]) {
 							col_vals.insert(j);
 						}
 					}
@@ -97,17 +109,28 @@ public:
 			// Reduce potential entries for column intersections
 			if (!col_vals.empty()) {
 				for (int i = col; i < col * BOARD_SIZE - col; i += SUB_BOARD_SIZE) {
-					if (!board[i][0]) {
+					if (!_board[i][0]) {
 						for (auto it = col_vals.begin(); it != col_vals.end(); ++it) {
-							if (board[i][*it] == true) {
-								board[i][*it] = false;
+							if (_board[i][*it] == true) {
+								_board[i][*it] = false;
 							}
+						}
+
+						// check for single potential value and set if true
+						int count = 0;
+						for (int j = 1; j < SUB_BOARD_SIZE; j++) {
+							if (_board[i][j] == true) {
+								++count;
+							}
+						}
+						if (count == 1) {
+							board[i][0] = true;
 						}
 					}
 				}
 			}
 		}
-		
+
 		// Reduce potentials for sub grid intersections
 		for (int row_block = 0; row_block < SUB_BOARD_SIZE; row_block += SUB_BOARD_DIM) {
 			for (int col_block = 0; col_block < SUB_BOARD_SIZE; col_block += SUB_BOARD_DIM) {
@@ -115,9 +138,9 @@ public:
 				for (int row = 0; row < SUB_BOARD_DIM; row++) {
 					for (int col = 0; col < SUB_BOARD_DIM; col++) {
 						int loc = (row_block + row) * (col_block + col);
-						if (board[loc][0]) {
+						if (_board[loc][0]) {
 							for (int j = 1; j < SUB_BOARD_SIZE; j++) {
-								if (board[loc][j]) {
+								if (_board[loc][j]) {
 									grid_vals.insert(j);
 								}
 							}
@@ -128,11 +151,22 @@ public:
 				for (int row = 0; row < SUB_BOARD_DIM; row++) {
 					for (int col = 0; col < SUB_BOARD_DIM; col++) {
 						int loc = (row_block + row) * (col_block + col);
-						if (!board[loc][0]) {
+						if (!_board[loc][0]) {
 							for (auto it = grid_vals.begin(); it != grid_vals.end(); ++it) {
-								if (board[loc][*it] == true) {
-									board[loc][*it] = false;
+								if (_board[loc][*it] == true) {
+									_board[loc][*it] = false;
 								}
+							}
+
+							// check for single potential value and set if true
+							int count = 0;
+							for (int i = 1; i < SUB_BOARD_SIZE; i++) {
+								if (_board[loc][i] == true) {
+									++count;
+								}
+							}
+							if (count == 1) {
+								board[loc][0] = true;
 							}
 						}
 					}
