@@ -182,4 +182,52 @@ public:
 			}
 		}
 	}
+	
+	// Prints out the passed in sudoku game board
+	// Assumes N is either 4, 9 or 16 but can be extended to add more sizes
+	void print_board(int *sudoku) {
+
+		char* border;
+		if (SUB_BOARD_SIZE == 4) {
+			border = new char[14]{ "|-----+-----|" };
+		}
+		else if (SUB_BOARD_SIZE == 9) {
+			border = new char[26]{ "|-------+-------+-------|" };
+		}
+		else if (SUB_BOARD_SIZE == 16) {
+			border = new char[42]{ "|---------+---------+---------+---------|" };
+		}
+		else {
+			return;
+		}
+
+		std::cout << border << std::endl;
+		int split = sqrt(SUB_BOARD_SIZE);
+		for (int i = 0; i < SUB_BOARD_SIZE*SUB_BOARD_SIZE; i++) {
+			if (i % SUB_BOARD_SIZE == 0) {
+				std::cout << "| ";
+			}
+			else if (i % split == 0) {
+				std::cout << "| ";
+			}
+			
+			// change to call a get_entry fucntion that will return the value
+			int value = sudoku[i];
+			if (value != 0) {
+				std::cout << value << " ";
+			}
+			else {
+				std::cout << ". ";
+			}
+
+			if (i % SUB_BOARD_SIZE == SUB_BOARD_SIZE - 1) {
+				std::cout << "|" << std::endl;
+
+				if (((i + 1) % (SUB_BOARD_SIZE * SUB_BOARD_SIZE / split)) == 0) {
+					std::cout << border << std::endl;
+				}
+			}
+		}
+		std::cout << std::endl;
+}
 };
