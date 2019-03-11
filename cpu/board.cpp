@@ -40,7 +40,7 @@ public:
 		}
 
 		free(board);
-		free(border);
+		delete(border);
 	}
 
 	// Method to set the board according to passed integer array
