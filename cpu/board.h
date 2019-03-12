@@ -59,7 +59,7 @@ public:
 	void remove_doubles_and_triples_by_sub_grid();
 
 	// Prints out the passed in sudoku game board
-// Assumes N is either 4, 9 or 16 but can be extended to add more sizes
+	// Assumes N is either 4, 9 or 16 but can be extended to add more sizes
 	void print_board();
 
 	void print_cell(int);
