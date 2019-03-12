@@ -48,6 +48,16 @@ public:
 
 	int* get_potentials(int);
 
+	std::set<int> get_potential_set(int _loc);
+
+	void remove_potential_values(std::set<int> _vals, int _loc);
+
+	void remove_potential_values_from_row(std::set<int> _vals, int row_start);
+
+	void remove_potential_values_from_col(std::set<int> _vals, int col_start);
+
+	void remove_doubles_and_triples_by_sub_grid();
+
 	// Prints out the passed in sudoku game board
 // Assumes N is either 4, 9 or 16 but can be extended to add more sizes
 	void print_board();
